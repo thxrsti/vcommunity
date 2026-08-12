@@ -37,7 +37,7 @@ section{margin-top:70px}.head{display:flex;justify-content:space-between;align-i
 </style>
 </head>
 <body>
-<header><div class="logo">V<span>/</span>COMMUNITY</div><nav><a href="#events">Events</a><a href="#leaderboard">Leaderboard</a><a href="#tracker">Game Tracker</a><a href="#members">Members</a><a href="#chat">Chat</a><a href="#announcements">Announcements</a></nav><button class="ghost" onclick="session?logout():openM('auth')" id="accountBtn">LOGIN</button><button class="btn" onclick="discord()">DISCORD</button></header>
+<header><div class="logo">V<span>/</span>COMMUNITY</div><nav><a href="#events">Events</a><a href="#leaderboard">Leaderboard</a><a href="#tracker">Game Tracker</a><a href="#members">Members</a><a href="#chat">Chat</a><a href="#announcements">Announcements</a></nav><button class="ghost" type="button" id="accountBtn">LOGIN</button><button class="btn" onclick="discord()">DISCORD</button></header>
 <main>
 <section class="hero">
 <div><div class="kicker">VALORANT COMMUNITY</div><h1>PLAY. <span>COMPETE.</span><br>CONNECT.</h1><p>A VALORANT-only community for 10-mans, custom scrims and tournaments. Create a profile, join the next lobby and chat with the community.</p><div class="actions"><button class="btn" onclick="document.querySelector('#events').scrollIntoView()">VIEW EVENT</button><button class="ghost" onclick="openM('auth')">LOGIN / SIGN UP</button></div></div>
@@ -127,10 +127,7 @@ function toggleAuthMode(){
  authHelp.textContent=authMode==='login'?'Use your email and password to enter V/Community.':'Create your account, then build your VALORANT profile.';
  authError.textContent='';
 }
-function finishAuthUI(){
- closeM('auth');
- render();
-}\nasync function submitAuth(){
+async function submitAuth(){
  if(!configured())return notify('Add your Supabase publishable key to index.html first.');
  const email=authEmail.value.trim(),password=authPassword.value,error=authError; error.textContent='';
  if(!email||!password)return error.textContent='Enter your email and password.';
@@ -163,7 +160,7 @@ function finishAuthUI(){
  }else{
   const {data,error:e}=await sb.auth.signInWithPassword({email,password});
   if(e)return error.textContent=e.message;
-  session=data.session;await ensureProfile();finishAuthUI();await loadAll();
+  session=data.session;await ensureProfile();closeM('auth');await loadAll();
  }
 }
 async function logout(){if(sb)await sb.auth.signOut();session=null;profile=null;profiles=[];players=[];messages=[];games=[];render()}
@@ -238,7 +235,15 @@ function view(id){
 }
 function render(){
  const accountBtn=document.getElementById('accountBtn');if(accountBtn){accountBtn.textContent=session?'LOGOUT':'LOGIN';accountBtn.onclick=session?logout:()=>openM('auth');}
- if(profile){pName.value=profile.username||'';pRiot.value=profile.riot_id||'';pRank.value=profile.rank||'Unranked';pAgent.value=profile.main_agent||'';pRole.value=roleName(profile);pAvatar.value=profile.avatar_url||''}
+ if(profile){
+ const pNameEl=document.getElementById('pName'),pRiotEl=document.getElementById('pRiot'),pRankEl=document.getElementById('pRank'),pAgentEl=document.getElementById('pAgent'),pRoleEl=document.getElementById('pRole'),pAvatarEl=document.getElementById('pAvatar');
+ if(pNameEl)pNameEl.value=profile.username||'';
+ if(pRiotEl)pRiotEl.value=profile.riot_id||'';
+ if(pRankEl)pRankEl.value=profile.rank||'Unranked';
+ if(pAgentEl)pAgentEl.value=profile.main_agent||'';
+ if(pRoleEl)pRoleEl.value=roleName(profile);
+ if(pAvatarEl)pAvatarEl.value=profile.avatar_url||'';
+}
  admins.innerHTML=profiles.filter(x=>x.is_admin).map(card).join('')||'<div class="card" style="color:#777">No admins yet.</div>';
  membersList.innerHTML=profiles.filter(x=>!x.is_admin).map(card).join('')||'<div class="card" style="color:#777">No members yet.</div>';
  memberCount.textContent=profiles.length;joinedCount.textContent=players.length;
@@ -259,6 +264,9 @@ async function start(){
  sb.auth.onAuthStateChange(async(_event,newSession)=>{session=newSession;if(session)await ensureProfile();await loadAll()});
  if(session)await ensureProfile();await loadAll();setupRealtime();
 }
-const messagesEl=document.getElementById('messages'),playersEl=document.getElementById('players');start();
+const messagesEl=document.getElementById('messages'),playersEl=document.getElementById('players');
+const accountButton=document.getElementById('accountBtn');
+if(accountButton)accountButton.addEventListener('click',()=>{if(session)logout();else openM('auth')});
+start();
 </script>
 </body></html>
