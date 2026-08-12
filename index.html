@@ -142,7 +142,13 @@ async function submitAuth(){
   // still gets logged in without having to go back to the login form.
   if(data.session){
     session=data.session;
-    await ensureProfile(display);
+    const {data:profileData,error:profileError}=await sb.rpc('set_my_display_name',{new_name:display});
+    if(profileError){
+      error.style.color='#ff6570';
+      error.textContent='Account created, but the display name could not be saved: '+profileError.message;
+      return;
+    }
+    profile=profileData;
     closeM('auth');
     await loadAll();
   }else{
@@ -153,7 +159,13 @@ async function submitAuth(){
       return;
     }
     session=loginData.session;
-    await ensureProfile(display);
+    const {data:profileData,error:profileError}=await sb.rpc('set_my_display_name',{new_name:display});
+    if(profileError){
+      error.style.color='#ff6570';
+      error.textContent='Account created, but the display name could not be saved: '+profileError.message;
+      return;
+    }
+    profile=profileData;
     closeM('auth');
     await loadAll();
   }
@@ -275,7 +287,13 @@ async function start(){
  if(!configured()){render();return}
  sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
  const {data}=await sb.auth.getSession();session=data.session;
- sb.auth.onAuthStateChange(async(_event,newSession)=>{session=newSession;if(session)await ensureProfile();await loadAll()});
+ sb.auth.onAuthStateChange(async(_event,newSession)=>{
+  session=newSession;
+  // Do not create/update a profile from the auth callback during signup.
+  // submitAuth() explicitly supplies the display name, which prevents a race
+  // where the email local-part could become the username first.
+  await loadAll();
+});
  if(session)await ensureProfile();await loadAll();setupRealtime();
 }
 const messagesEl=document.getElementById('messages'),playersEl=document.getElementById('players');
