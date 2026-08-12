@@ -167,26 +167,20 @@ async function logout(){if(sb)await sb.auth.signOut();session=null;profile=null;
 async function ensureProfile(nameFromSignup=''){
  if(!session?.user)return;
  const id=session.user.id;
- const {data:existing}=await sb.from('profiles').select('*').eq('id',id).maybeSingle();
+ const requestedName=(nameFromSignup||session.user.user_metadata?.display_name||'').trim();
 
- // During signup, always use the display name the person entered.
- // This also fixes profiles that were automatically created by a database
- // trigger with the email address/local-part as the username.
- if(existing){
-   if(nameFromSignup && nameFromSignup.trim() && existing.username !== nameFromSignup.trim()){
-     const {data:updated,error:updateError}=await sb.from('profiles')
-       .update({username:nameFromSignup.trim()})
-       .eq('id',id)
-       .select().single();
-     if(updateError){notify('Account created, but the display name could not be saved: '+updateError.message);profile=existing;}
-     else profile=updated;
-   }else{
-     profile=existing;
-   }
-   return;
+ // Use the database function so signup always writes the requested display name,
+ // even if a Supabase trigger already created the profile row.
+ if(requestedName){
+   const {data:updated,error:updateError}=await sb.rpc('set_my_display_name',{new_name:requestedName});
+   if(!updateError && updated){profile=updated;return;}
+   if(updateError)console.warn('Display-name RPC failed:',updateError.message);
  }
 
- const fallback=nameFromSignup?.trim()||session.user.user_metadata?.display_name||session.user.email.split('@')[0];
+ const {data:existing}=await sb.from('profiles').select('*').eq('id',id).maybeSingle();
+ if(existing){profile=existing;return;}
+
+ const fallback=requestedName||session.user.email.split('@')[0];
  const {data,error}=await sb.from('profiles')
    .insert({id,username:fallback,riot_id:'',rank:'Unranked',main_agent:'',avatar_url:'',is_admin:false,role:'Member'})
    .select().single();
