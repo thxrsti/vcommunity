@@ -13,7 +13,95 @@ section{margin-top:70px}.head{display:flex;justify-content:space-between;align-i
 .chat{ padding:18px; background:linear-gradient(180deg,#11131a,#0d0f14); box-shadow:0 12px 35px #0008; }  .messages{ height:320px; overflow:auto; padding:8px; scroll-behavior:smooth; }  .messages::-webkit-scrollbar{ width:6px; }  .messages::-webkit-scrollbar-thumb{ background:#343742; border-radius:10px; }  .msg{ position:relative; background:#171923; border:1px solid #252834; border-radius:12px; padding:11px 13px; margin:8px 0; transition:.2s; }  .msg:hover{ background:#1c1f29; border-color:#ff465544; transform:translateY(-1px); }  .msg b{ color:#ff6570; font-size:13px; }  .msg small{ color:#777; margin-left:8px; font-size:10px; }  .msg div{ color:#e5e6eb; margin-top:5px; line-height:1.45; word-break:break-word; }  .del{ float:right; background:none; border:0; color:#666; cursor:pointer; font-size:11px; }  .del:hover{ color:var(--red); }  .chatInput{ display:flex; gap:8px; margin-top:14px; padding-top:12px; border-top:1px solid #292c37; }  .chatInput input, .field input, .field select{ flex:1; background:#090a0f; color:white; border:1px solid #343742; border-radius:9px; padding:12px; outline:0; transition:.2s; }  .chatInput input:focus, .field input:focus{ border-color:var(--red); box-shadow:0 0 0 3px #ff465522; }  .chatInput input::placeholder{ color:#666a75; }.messages{height:280px;overflow:auto}.msg{background:#171923;border-radius:8px;padding:9px 10px;margin:6px 0}.msg small{color:#777;margin-left:8px}.del{float:right;background:none;border:0;color:#777;cursor:pointer}.del:hover{color:var(--red)}.chatInput{display:flex;gap:8px;margin-top:10px}.chatInput input,.field input,.field select{flex:1;background:#090a0f;color:white;border:1px solid #343742;border-radius:7px;padding:12px;outline:0}.chatInput input:focus,.field input:focus{border-color:var(--red)}
 .modal{display:none;position:fixed;inset:0;background:#000b;z-index:30;align-items:center;justify-content:center;padding:20px}.modal.open{display:flex}.modalbox{width:min(500px,100%);background:#11131a;border:1px solid #30333d;border-radius:14px;padding:24px}.close{float:right;background:none;border:0;color:#aaa;cursor:pointer}.field{margin:13px 0}.field label{display:block;color:#bbb;font-size:11px;margin-bottom:6px}.row{display:flex;gap:9px;justify-content:flex-end;margin-top:18px}.profile{display:flex;gap:15px;align-items:center}.bigavatar{width:70px;height:70px;border-radius:50%;overflow:hidden;background:#333744;display:grid;place-items:center;font-size:25px;font-weight:900}.bigavatar img{width:100%;height:100%;object-fit:cover}footer{text-align:center;color:#71737d;border-top:1px solid var(--line);padding:30px;margin-top:80px}
 @media(max-width:800px){nav{display:none}.hero{grid-template-columns:1fr}.hero h1{font-size:48px}.grid,.members,.stats{grid-template-columns:1fr}.actions{flex-direction:column}}
-</style>
+/* Discord-style chat */
+.msg{
+  display:flex;
+  gap:12px;
+  padding:10px 12px;
+  border-radius:10px;
+  margin-bottom:4px;
+  transition:background .15s ease;
+}
+
+.msg:hover{
+  background:rgba(255,255,255,.04);
+}
+
+.chat-avatar{
+  width:42px;
+  height:42px;
+  min-width:42px;
+  border-radius:50%;
+  object-fit:cover;
+  background:#303442;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  font-size:16px;
+}
+
+.chat-avatar-placeholder{
+  color:#fff;
+}
+
+.msg-content{
+  min-width:0;
+  flex:1;
+}
+
+.msg-header{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  line-height:20px;
+}
+
+.msg-header b{
+  color:#fff;
+  font-size:14px;
+}
+
+.msg-header small{
+  color:#72767d;
+  font-size:11px;
+}
+
+.msg-info{
+  color:#8f96a3;
+  font-size:11px;
+  margin-top:-2px;
+  margin-bottom:3px;
+}
+
+.msg-body{
+  color:#dcdee1;
+  font-size:14px;
+  line-height:20px;
+  word-break:break-word;
+}
+
+.chat-admin-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:16px;
+  height:16px;
+  border-radius:50%;
+  background:#5865f2;
+  color:#fff;
+  font-size:10px;
+  font-weight:bold;
+}
+
+.msg .del{
+  opacity:0;
+  transition:opacity .15s ease;
+}
+
+.msg:hover .del{
+  opacity:1;
+}</style>
 </head>
 <body>
 <header><div class="logo">V<span>/</span>COMMUNITY</div><nav><a href="#events">Events</a><a href="#members">Members</a><a href="#chat">Chat</a><a href="#announcements">Announcements</a></nav><button class="ghost" onclick="session?logout():openM('auth')" id="accountBtn">LOGIN</button><button class="btn" onclick="discord()">DISCORD</button></header>
@@ -115,7 +203,7 @@ async function loadAll(){
  if(profile)profile=profiles.find(x=>x.id===profile.id)||profile;
  const {data:e}=await sb.from('events').select('*').eq('name','Saturday 10-Mans').order('event_date',{ascending:true}).limit(1);currentEvent=e?.[0]||null;
  if(currentEvent){const {data:ep}=await sb.from('event_players').select('user_id,profiles(username)').eq('event_id',currentEvent.id);players=(ep||[]).map(x=>({id:x.user_id,name:x.profiles?.username||'Member'}));}else players=[];
- const {data:m}=await sb.from('messages').select('id,user_id,body,created_at,profiles(username)').order('created_at',{ascending:true}).limit(100);messages=m||[];
+ const {data:m}=await sb.from('messages').const {data:m}=await sb.from('messages').select('id,user_id,body,created_at,profiles(username,avatar_url,rank,main_agent,is_admin)').order('created_at',{ascending:true}).limit(100);.order('created_at',{ascending:true}).limit(100);messages=m||[];
  render();
 }
 async function saveProfile(){
@@ -151,11 +239,52 @@ async function toggleAdmin(id){
  const {error}=await sb.from('profiles').update({is_admin:!p.is_admin}).eq('id',id);if(error)return notify(error.message);await loadAll();closeM('view');
 }
 function renderChat(){
- messagesEl.innerHTML=messages.length?messages.map(m=>{
-  const own=m.user_id===session?.user?.id,canDelete=own||profile?.is_admin,time=new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  return `<div class="msg"><b>${esc(m.profiles?.username||'Member')}</b><small>${esc(time)}</small>${canDelete?`<button class="del" onclick="delMsg(${m.id})">Delete</button>`:''}<div>${esc(m.body)}</div></div>`;
- }).join(''):'<div style="color:#777;padding:15px">No messages yet.</div>';
- messagesEl.scrollTop=messagesEl.scrollHeight;
+  messagesEl.innerHTML = messages.length ? messages.map(m => {
+    const own = m.user_id === session?.user?.id;
+    const canDelete = own || profile?.is_admin;
+
+    const username = esc(m.profiles?.username || 'Member');
+    const avatar = m.profiles?.avatar_url || '';
+    const rank = esc(m.profiles?.rank || 'Unranked');
+    const agent = esc(m.profiles?.main_agent || 'Agent not set');
+    const time = new Date(m.created_at).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    const avatarHTML = avatar
+      ? `<img src="${esc(avatar)}" class="chat-avatar" alt="${username}">`
+      : `<div class="chat-avatar chat-avatar-placeholder">${username.charAt(0).toUpperCase()}</div>`;
+
+    const adminBadge = m.profiles?.is_admin
+      ? `<span class="chat-admin-badge">✓</span>`
+      : '';
+
+    return `
+      <div class="msg ${own ? 'own' : ''}">
+        ${avatarHTML}
+        <div class="msg-content">
+          <div class="msg-header">
+            <b>${username}</b>
+            ${adminBadge}
+            <small>${time}</small>
+          </div>
+
+          <div class="msg-info">
+            ${rank} · ${agent}
+          </div>
+
+          <div class="msg-body">
+            ${esc(m.body)}
+          </div>
+
+          ${canDelete ? `<button class="del" onclick="delMsg('${m.id}')">Delete</button>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('') : '<div style="color:#777;padding:15px">No messages yet.</div>';
+
+  messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 function render(){
  const accountBtn=document.getElementById('accountBtn');if(accountBtn){accountBtn.textContent=session?'LOGOUT':'LOGIN';accountBtn.onclick=session?logout:()=>openM('auth');}
