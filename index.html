@@ -30,6 +30,10 @@ section{margin-top:70px}.head{display:flex;justify-content:space-between;align-i
 .gameMain{min-width:0}.gameTop{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.gameScore{font-size:18px;font-weight:900}
 .gameMeta{color:var(--muted);font-size:12px;margin-top:5px}
 @media(max-width:800px){.tracker{grid-template-columns:1fr}.formgrid{grid-template-columns:1fr}.full{grid-column:auto}.lbtable{font-size:12px}.lbtable th:nth-child(5),.lbtable td:nth-child(5){display:none}}
+
+.rolebadge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:900;letter-spacing:.4px;padding:4px 7px;border-radius:5px;border:1px solid #383b47;background:#20232d;color:#d5d7df;margin-top:4px}
+.role-admin{color:#ff6570;border-color:#ff465566;background:#ff465510}
+.role-staff{color:#8fb7ff}.role-trial{color:#c6a8ff}.role-vip{color:#ffd76a}.role-streamer{color:#ff8bd8}
 </style>
 </head>
 <body>
@@ -98,7 +102,7 @@ section{margin-top:70px}.head{display:flex;justify-content:space-between;align-i
 <div id="authError" style="color:#ff6570;min-height:20px"></div>
 <div class="row"><button class="ghost" id="authSwitch" onclick="toggleAuthMode()">Create account</button><button class="btn" id="authSubmit" onclick="submitAuth()">LOGIN</button></div>
 </div></div>
-<div class="modal" id="profile"><div class="modalbox"><button class="close" onclick="closeM('profile')">✕</button><h2>Customize profile</h2><div class="field"><label>DISPLAY NAME *</label><input id="pName" placeholder="rAiN"></div><div class="field"><label>RIOT ID</label><input id="pRiot" placeholder="rAiN#1234"></div><div class="field"><label>RANK</label><select id="pRank"><option>Unranked</option><option>Iron</option><option>Bronze</option><option>Silver</option><option>Gold</option><option>Platinum</option><option>Diamond</option><option>Ascendant</option><option>Immortal</option><option>Radiant</option></select></div><div class="field"><label>MAIN AGENT</label><input id="pAgent" placeholder="Jett"></div><div class="field"><label>PROFILE PICTURE URL</label><input id="pAvatar" placeholder="Optional image URL"></div><div class="row"><button class="ghost" onclick="closeM('profile')">CANCEL</button><button class="btn" onclick="saveProfile()">SAVE</button></div></div></div>
+<div class="modal" id="profile"><div class="modalbox"><button class="close" onclick="closeM('profile')">✕</button><h2>Customize profile</h2><div class="field"><label>DISPLAY NAME *</label><input id="pName" placeholder="rAiN"></div><div class="field"><label>RIOT ID</label><input id="pRiot" placeholder="rAiN#1234"></div><div class="field"><label>RANK</label><select id="pRank"><option>Unranked</option><option>Iron</option><option>Bronze</option><option>Silver</option><option>Gold</option><option>Platinum</option><option>Diamond</option><option>Ascendant</option><option>Immortal</option><option>Radiant</option></select></div><div class="field"><label>MAIN AGENT</label><input id="pAgent" placeholder="Jett"></div><div class="field"><label>ROLE</label><select id="pRole" disabled><option>Member</option><option>Trial Staff</option><option>Staff</option><option>VIP</option><option>Streamer</option><option>Admin</option></select></div><div class="field"><label>PROFILE PICTURE URL</label><input id="pAvatar" placeholder="Optional image URL"></div><div class="row"><button class="ghost" onclick="closeM('profile')">CANCEL</button><button class="btn" onclick="saveProfile()">SAVE</button></div></div></div>
 <div class="modal" id="view"><div class="modalbox"><button class="close" onclick="closeM('view')">✕</button><div id="viewContent"></div></div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -161,6 +165,24 @@ async function loadAll(){
  if(gameError){games=[];console.error('Game tracker load error:',gameError.message);}else{games=g||[];}
  render();
 }
+function roleName(p){
+  if(p?.is_admin || p?.role==='Admin') return 'Admin';
+  return p?.role || 'Member';
+}
+function roleBadge(p){
+  const r=roleName(p);
+  const cls={'Admin':'role-admin','Staff':'role-staff','Trial Staff':'role-trial','VIP':'role-vip','Streamer':'role-streamer'}[r]||'';
+  const icon={'Admin':'🛡️','Staff':'🔧','Trial Staff':'🧪','VIP':'💎','Streamer':'🎥','Member':'👤'}[r]||'👤';
+  return `<span class="rolebadge ${cls}">${icon} ${esc(r.toUpperCase())}</span>`;
+}
+async function setMemberRole(userId,newRole){
+  if(!session?.user){openM('auth');return}
+  if(!profile?.is_admin)return notify('Only admins can change roles.');
+  const {error}=await sb.rpc('set_profile_role',{target_user_id:userId,new_role:newRole});
+  if(error)return notify('Could not change role: '+error.message);
+  await loadAll();closeM('view');
+}
+
 async function saveProfile(){
  if(!session?.user){closeM('profile');openM('auth');return}
  const name=pName.value.trim();if(!name)return notify('Enter a display name.');
@@ -181,89 +203,20 @@ async function sendChat(){
  const {error}=await sb.from('messages').insert({user_id:session.user.id,body:t});if(error)return notify(error.message);chatText.value='';
 }
 async function delMsg(id){if(!session?.user)return;const {error}=await sb.from('messages').delete().eq('id',id);if(error)return notify(error.message);await loadAll()}
-function card(p){return `<div class="member" onclick="view('${p.id}')"><div class="avatar">${p.avatar_url?`<img src="${esc(p.avatar_url)}">`:esc((p.username||'?')[0].toUpperCase())}</div><div><b>${esc(p.username)} ${p.is_admin?'🛡️':''}</b><small>${esc(p.rank||'Unranked')} · ${esc(p.main_agent||'Agent not set')}</small></div></div>`}
+function card(p){return `<div class="member" onclick="view('${p.id}')"><div class="avatar">${p.avatar_url?`<img src="${esc(p.avatar_url)}">`:esc((p.username||'?')[0].toUpperCase())}</div><div><b>${esc(p.username||'Member')}</b><small>${esc(p.rank||'Unranked')} · ${esc(p.main_agent||'Agent not set')}</small>${roleBadge(p)}</div></div>`}
 function view(id){
- const p=profiles.find(x=>x.id===id);if(!p)return;
- const controls=profile?.is_admin&&p.id!==profile.id?`<button class="btn" onclick="toggleAdmin('${p.id}')">${p.is_admin?'REMOVE ADMIN':'MAKE ADMIN'}</button>`:'';
- viewContent.innerHTML=`<div class="profile"><div class="bigavatar">${p.avatar_url?`<img src="${esc(p.avatar_url)}">`:esc((p.username||'?')[0].toUpperCase())}</div><div><h2 style="margin:0">${esc(p.username)} ${p.is_admin?'🛡️':''}</h2><div style="color:#999">${esc(p.riot_id||'Riot ID not set')}</div></div></div><div class="card" style="margin-top:18px"><b>Rank</b><p>${esc(p.rank||'Unranked')}</p><b>Main Agent</b><p>${esc(p.main_agent||'Not set')}</p><div class="row">${controls}<button class="ghost" onclick="closeM('view')">CLOSE</button></div></div>`;
- openM('view');
+  const p=profiles.find(x=>x.id===id);if(!p)return;
+  let controls='';
+  if(profile?.is_admin && p.id!==profile.id){
+    controls=`<div class="field"><label>ROLE</label><select id="roleSelect"><option>Member</option><option>Trial Staff</option><option>Staff</option><option>VIP</option><option>Streamer</option><option>Admin</option></select></div><button class="btn" onclick="setMemberRole('${p.id}',document.getElementById('roleSelect').value)">SAVE ROLE</button>`;
+  }
+  viewContent.innerHTML=`<div class="profile"><div class="bigavatar">${p.avatar_url?`<img src="${esc(p.avatar_url)}">`:esc((p.username||'?')[0].toUpperCase())}</div><div><h2 style="margin:0">${esc(p.username||'Member')}</h2><div>${roleBadge(p)}</div><div style="color:#999">${esc(p.riot_id||'Riot ID not set')}</div></div></div><div class="card" style="margin-top:18px"><b>Rank</b><p>${esc(p.rank||'Unranked')}</p><b>Main Agent</b><p>${esc(p.main_agent||'Not set')}</p>${controls}<div class="row"><button class="ghost" onclick="closeM('view')">CLOSE</button></div></div>`;
+  if(controls)document.getElementById('roleSelect').value=roleName(p);
+  openM('view');
 }
-async function toggleAdmin(id){
- if(!profile?.is_admin)return notify('Only admins can change roles.');
- const p=profiles.find(x=>x.id===id);if(!p)return;
- const {error}=await sb.from('profiles').update({is_admin:!p.is_admin}).eq('id',id);if(error)return notify(error.message);await loadAll();closeM('view');
-}
-function renderChat(){
- messagesEl.innerHTML=messages.length?messages.map(m=>{
-  const own=m.user_id===session?.user?.id,canDelete=own||profile?.is_admin,time=new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  return `<div class="msg"><b>${esc(m.profiles?.username||'Member')}</b><small>${esc(time)}</small>${canDelete?`<button class="del" onclick="delMsg(${m.id})">Delete</button>`:''}<div>${esc(m.body)}</div></div>`;
- }).join(''):'<div style="color:#777;padding:15px">No messages yet.</div>';
- messagesEl.scrollTop=messagesEl.scrollHeight;
-}
-
-async function saveGame(){
-  if(!session?.user){openM('auth');return}
-  const error=document.getElementById('gameError');error.textContent='';
-  const opponent=document.getElementById('gameOpponent').value.trim(),map=document.getElementById('gameMap').value.trim(),score=document.getElementById('gameScore').value.trim(),result=document.getElementById('gameResult').value;
-  const kills=Number(document.getElementById('gameKills').value||0),deaths=Number(document.getElementById('gameDeaths').value||0),assists=Number(document.getElementById('gameAssists').value||0),agent=document.getElementById('gameAgent').value.trim(),note=document.getElementById('gameNote').value.trim();
-  if(!opponent||!score)return error.textContent='Enter an opponent and score.';
-  if(kills<0||deaths<0||assists<0)return error.textContent='Stats cannot be negative.';
-  const {error:e}=await sb.from('game_results').insert({
-    user_id:session.user.id,opponent,map_name:map,score,result,kills,deaths,assists,agent,note
-  });
-  if(e)return error.textContent=e.message;
-  document.getElementById('gameOpponent').value='';document.getElementById('gameMap').value='';document.getElementById('gameScore').value='';document.getElementById('gameResult').value='Win';
-  document.getElementById('gameKills').value='';document.getElementById('gameDeaths').value='';document.getElementById('gameAssists').value='';document.getElementById('gameAgent').value='';document.getElementById('gameNote').value='';
-  await loadAll();
-}
-async function deleteGame(id){
-  if(!session?.user){openM('auth');return}
-  const g=games.find(x=>String(x.id)===String(id));
-  if(!g){return notify('Game not found. Please refresh the page and try again.')}
-  if(g.user_id!==session.user.id){return notify('You can only delete your own games.')}
-  if(!confirm('Delete this game result?'))return;
-
-  const {data,error}=await sb.from('game_results')
-    .delete()
-    .eq('id',id)
-    .eq('user_id',session.user.id)
-    .select('id');
-
-  if(error)return notify('Could not delete the game: '+error.message);
-  if(!data||data.length===0)return notify('The game could not be deleted. Check that the game_results DELETE policy is enabled in Supabase.');
-
-  await loadAll();
-}
-function renderLeaderboard(){
-  const byUser={};
-  games.forEach(g=>{
-    const id=g.user_id;
-    if(!byUser[id])byUser[id]={id,user:g.profiles||{},games:0,wins:0,losses:0,kills:0,deaths:0,assists:0};
-    const s=byUser[id];s.games++;s.kills+=Number(g.kills||0);s.deaths+=Number(g.deaths||0);s.assists+=Number(g.assists||0);
-    if(g.result==='Win')s.wins++;else s.losses++;
-  });
-  const rows=Object.values(byUser).sort((a,b)=>{
-    const aw=a.wins/Math.max(a.games,1),bw=b.wins/Math.max(b.games,1);
-    const ak=(a.kills+a.assists)/Math.max(a.deaths,1),bk=(b.kills+b.assists)/Math.max(b.deaths,1);
-    return b.wins-a.wins || bw-aw || bk-ak || b.games-a.games;
-  });
-  leaderboardBody.innerHTML=rows.length?rows.map((s,i)=>{
-    const name=s.user?.username||'Member',avatar=s.user?.avatar_url||'',rate=Math.round(s.wins/Math.max(s.games,1)*100),kda=((s.kills+s.assists)/Math.max(s.deaths,1)).toFixed(2);
-    return `<tr><td><span class="ranknum">${i+1}</span></td><td><div class="lbrow"><div class="lbavatar">${avatar?`<img src="${esc(avatar)}">`:esc((name||'?')[0].toUpperCase())}</div><b>${esc(name)}</b></div></td><td>${s.games}</td><td><span class="win">${s.wins}W</span> / <span class="loss">${s.losses}L</span></td><td>${rate}%</td><td>${kda}</td></tr>`;
-  }).join(''):'<tr><td colspan="6" style="color:#777;padding:18px">No game results yet. Be the first to log a game!</td></tr>';
-}
-function renderMyGames(){
-  if(!session?.user){myGames.innerHTML='<div style="color:#777">Log in to record games and view your history.</div>';return}
-  const mine=games.filter(g=>g.user_id===session.user.id).slice(0,20);
-  myGames.innerHTML=mine.length?mine.map(g=>{
-    const when=new Date(g.played_at||g.created_at).toLocaleDateString();
-    return `<div class="gameRow"><div class="gameMain"><div class="gameTop"><span class="${g.result==='Win'?'win':'loss'}">${esc(g.result)}</span><b>${esc(g.score)}</b><span>${esc(g.opponent)}</span></div><div class="gameMeta">${esc(g.map_name||'Map not set')} · ${esc(g.agent||'Agent not set')} · ${g.kills}/${g.deaths}/${g.assists} K/D/A · ${when}${g.note?' · '+esc(g.note):''}</div></div><button class="del" onclick="deleteGame('${g.id}')">Delete</button></div>`;
-  }).join(''):'<div style="color:#777">No games recorded yet.</div>';
-}
-
 function render(){
  const accountBtn=document.getElementById('accountBtn');if(accountBtn){accountBtn.textContent=session?'LOGOUT':'LOGIN';accountBtn.onclick=session?logout:()=>openM('auth');}
- if(profile){pName.value=profile.username||'';pRiot.value=profile.riot_id||'';pRank.value=profile.rank||'Unranked';pAgent.value=profile.main_agent||'';pAvatar.value=profile.avatar_url||''}
+ if(profile){pName.value=profile.username||'';pRiot.value=profile.riot_id||'';pRank.value=profile.rank||'Unranked';pAgent.value=profile.main_agent||'';pRole.value=roleName(profile);pAvatar.value=profile.avatar_url||''}
  admins.innerHTML=profiles.filter(x=>x.is_admin).map(card).join('')||'<div class="card" style="color:#777">No admins yet.</div>';
  membersList.innerHTML=profiles.filter(x=>!x.is_admin).map(card).join('')||'<div class="card" style="color:#777">No members yet.</div>';
  memberCount.textContent=profiles.length;joinedCount.textContent=players.length;
