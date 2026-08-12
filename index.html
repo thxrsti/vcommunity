@@ -134,7 +134,7 @@ async function submitAuth(){
  if(authMode==='signup'){
   const display=authName.value.trim(); if(!display)return error.textContent='Enter a display name.';
   if(password.length<6)return error.textContent='Password must be at least 6 characters.';
-  const {data,error:e}=await sb.auth.signUp({email,password,data:{display_name:display}});
+  const {data,error:e}=await sb.auth.signUp({email,password,options:{data:{display_name:display}}});
   if(e)return error.textContent=e.message;
 
   // Supabase normally returns a session when email confirmation is disabled.
