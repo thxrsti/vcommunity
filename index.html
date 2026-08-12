@@ -127,7 +127,10 @@ function toggleAuthMode(){
  authHelp.textContent=authMode==='login'?'Use your email and password to enter V/Community.':'Create your account, then build your VALORANT profile.';
  authError.textContent='';
 }
-async function submitAuth(){
+function finishAuthUI(){
+ closeM('auth');
+ render();
+}\nasync function submitAuth(){
  if(!configured())return notify('Add your Supabase publishable key to index.html first.');
  const email=authEmail.value.trim(),password=authPassword.value,error=authError; error.textContent='';
  if(!email||!password)return error.textContent='Enter your email and password.';
@@ -160,7 +163,7 @@ async function submitAuth(){
  }else{
   const {data,error:e}=await sb.auth.signInWithPassword({email,password});
   if(e)return error.textContent=e.message;
-  session=data.session;await ensureProfile();closeM('auth');await loadAll();
+  session=data.session;await ensureProfile();finishAuthUI();await loadAll();
  }
 }
 async function logout(){if(sb)await sb.auth.signOut();session=null;profile=null;profiles=[];players=[];messages=[];games=[];render()}
