@@ -203,7 +203,7 @@ async function loadAll(){
  if(profile)profile=profiles.find(x=>x.id===profile.id)||profile;
  const {data:e}=await sb.from('events').select('*').eq('name','Saturday 10-Mans').order('event_date',{ascending:true}).limit(1);currentEvent=e?.[0]||null;
  if(currentEvent){const {data:ep}=await sb.from('event_players').select('user_id,profiles(username)').eq('event_id',currentEvent.id);players=(ep||[]).map(x=>({id:x.user_id,name:x.profiles?.username||'Member'}));}else players=[];
- const {data:m}=await sb.from('messages').select('id,user_id,body,created_at,profiles(username,avatar_url,rank,main_agent,is_admin)').order('created_at',{ascending:true}).limit(100);.const {data:m}=await sb.from('messages').select('id,user_id,body,created_at,profiles(username,avatar_url,rank,main_agent,is_admin)').order('created_at',{ascending:true}).limit(100);.order('created_at',{ascending:true}).limit(100);messages=m||[];
+ const {data:m}=await sb.from('messages').select('id,user_id,body,created_at,profiles(username,avatar_url,rank,main_agent,is_admin)').order('created_at',{ascending:true}).limit(100); .select('id,user_id,body,created_at,profiles(username,avatar_url,rank,main_agent,is_admin)').order('created_at',{ascending:true}).limit(100);.const {data:m}=await sb.from('messages').select('id,user_id,body,created_at,profiles(username,avatar_url,rank,main_agent,is_admin)').order('created_at',{ascending:true}).limit(100);.order('created_at',{ascending:true}).limit(100);messages=m||[];
  render();
 }
 async function saveProfile(){
