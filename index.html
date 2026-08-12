@@ -136,8 +136,27 @@ async function submitAuth(){
   if(password.length<6)return error.textContent='Password must be at least 6 characters.';
   const {data,error:e}=await sb.auth.signUp({email,password,data:{display_name:display}});
   if(e)return error.textContent=e.message;
-  if(data.session){session=data.session;await ensureProfile(display);closeM('auth');await loadAll();}
-  else{error.style.color='#55d68a';error.textContent='Account created. Check your email to confirm it, then log in.';}
+
+  // Supabase normally returns a session when email confirmation is disabled.
+  // If it doesn't, immediately sign in with the same credentials so the user
+  // still gets logged in without having to go back to the login form.
+  if(data.session){
+    session=data.session;
+    await ensureProfile(display);
+    closeM('auth');
+    await loadAll();
+  }else{
+    const {data:loginData,error:loginError}=await sb.auth.signInWithPassword({email,password});
+    if(loginError){
+      error.style.color='#ff6570';
+      error.textContent='Account created, but automatic login failed: '+loginError.message;
+      return;
+    }
+    session=loginData.session;
+    await ensureProfile(display);
+    closeM('auth');
+    await loadAll();
+  }
  }else{
   const {data,error:e}=await sb.auth.signInWithPassword({email,password});
   if(e)return error.textContent=e.message;
@@ -151,7 +170,7 @@ async function ensureProfile(nameFromSignup=''){
  const {data:existing}=await sb.from('profiles').select('*').eq('id',id).maybeSingle();
  if(existing){profile=existing;return;}
  const fallback=nameFromSignup||session.user.user_metadata?.display_name||session.user.email.split('@')[0];
- const {data,error}=await sb.from('profiles').insert({id,username:fallback,riot_id:'',rank:'Unranked',main_agent:'',avatar_url:'',is_admin:false}).select().single();
+ const {data,error}=await sb.from('profiles').insert({id,username:fallback,riot_id:'',rank:'Unranked',main_agent:'',avatar_url:'',is_admin:false,role:'Member'}).select().single();
  if(error)notify('Your account exists, but your profile could not be created: '+error.message); else profile=data;
 }
 async function loadAll(){
