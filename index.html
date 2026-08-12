@@ -10,13 +10,30 @@ header{height:70px;position:sticky;top:0;z-index:10;background:#08090de8;backdro
 main{max-width:1180px;margin:auto;padding:60px 5%}.hero{display:grid;grid-template-columns:1.2fr .8fr;gap:45px;min-height:420px;align-items:center}.kicker{color:var(--red);font-weight:900;letter-spacing:2px;font-size:12px}.hero h1{font-size:64px;line-height:.96;letter-spacing:-3px;margin:14px 0}.hero h1 span{color:var(--red)}.hero p{color:var(--muted);font-size:17px;line-height:1.65;max-width:650px}.actions{display:flex;gap:10px;margin-top:25px}.panel,.card,.chat{background:var(--panel);border:1px solid var(--line);border-radius:14px}.panel{padding:24px}.status{display:flex;justify-content:space-between;color:var(--muted);font-size:11px}.eventTitle{font-size:27px;font-weight:900;margin:22px 0 10px}.meta{line-height:2;color:#c5c6cd}.bar{height:7px;background:#292c36;border-radius:9px;margin:18px 0 7px;overflow:hidden}.bar i{display:block;height:100%;background:var(--red);width:0}
 section{margin-top:70px}.head{display:flex;justify-content:space-between;align-items:end;margin-bottom:20px}.head h2{margin:0;font-size:30px}.head p{margin:6px 0;color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.card{padding:20px}.tag{font-size:10px;color:#ff7c86;background:#ff465512;border:1px solid #ff465533;padding:5px 8px;border-radius:5px;font-weight:900}.card h3{margin:13px 0 8px}.card p{color:var(--muted);line-height:1.55}.date{color:#d0d1d6;font-size:13px}.players{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}.pill{background:#20232d;border:1px solid #353844;border-radius:20px;padding:6px 9px;font-size:12px}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px}.stat b{font-size:27px}.stat span{display:block;color:var(--muted);font-size:11px;margin-top:5px}.role{color:#ff6570;font-size:12px;font-weight:900;letter-spacing:1px;margin:25px 0 10px}.members{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.member{display:flex;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;cursor:pointer}.member:hover{border-color:#ff465566}.avatar{width:42px;height:42px;border-radius:50%;background:#333744;display:grid;place-items:center;font-weight:900;overflow:hidden;flex:none}.avatar img{width:100%;height:100%;object-fit:cover}.member small{display:block;color:var(--muted);margin-top:3px}
-.chat{ padding:18px; background:linear-gradient(180deg,#11131a,#0d0f14); box-shadow:0 12px 35px #0008; }  .messages{ height:320px; overflow:auto; padding:8px; scroll-behavior:smooth; }  .messages::-webkit-scrollbar{ width:6px; }  .messages::-webkit-scrollbar-thumb{ background:#343742; border-radius:10px; }  .msg{ position:relative; background:#171923; border:1px solid #252834; border-radius:12px; padding:11px 13px; margin:8px 0; transition:.2s; }  .msg:hover{ background:#1c1f29; border-color:#ff465544; transform:translateY(-1px); }  .msg b{ color:#ff6570; font-size:13px; }  .msg small{ color:#777; margin-left:8px; font-size:10px; }  .msg div{ color:#e5e6eb; margin-top:5px; line-height:1.45; word-break:break-word; }  .del{ float:right; background:none; border:0; color:#666; cursor:pointer; font-size:11px; }  .del:hover{ color:var(--red); }  .chatInput{ display:flex; gap:8px; margin-top:14px; padding-top:12px; border-top:1px solid #292c37; }  .chatInput input, .field input, .field select{ flex:1; background:#090a0f; color:white; border:1px solid #343742; border-radius:9px; padding:12px; outline:0; transition:.2s; }  .chatInput input:focus, .field input:focus{ border-color:var(--red); box-shadow:0 0 0 3px #ff465522; }  .chatInput input::placeholder{ color:#666a75; }.messages{height:280px;overflow:auto}.msg{background:#171923;border-radius:8px;padding:9px 10px;margin:6px 0}.msg small{color:#777;margin-left:8px}.del{float:right;background:none;border:0;color:#777;cursor:pointer}.del:hover{color:var(--red)}.chatInput{display:flex;gap:8px;margin-top:10px}.chatInput input,.field input,.field select{flex:1;background:#090a0f;color:white;border:1px solid #343742;border-radius:7px;padding:12px;outline:0}.chatInput input:focus,.field input:focus{border-color:var(--red)}
+.chat{padding:15px}.messages{height:280px;overflow:auto}.msg{background:#171923;border-radius:8px;padding:9px 10px;margin:6px 0}.msg small{color:#777;margin-left:8px}.del{float:right;background:none;border:0;color:#777;cursor:pointer}.del:hover{color:var(--red)}.chatInput{display:flex;gap:8px;margin-top:10px}.chatInput input,.field input,.field select{flex:1;background:#090a0f;color:white;border:1px solid #343742;border-radius:7px;padding:12px;outline:0}.chatInput input:focus,.field input:focus{border-color:var(--red)}
 .modal{display:none;position:fixed;inset:0;background:#000b;z-index:30;align-items:center;justify-content:center;padding:20px}.modal.open{display:flex}.modalbox{width:min(500px,100%);background:#11131a;border:1px solid #30333d;border-radius:14px;padding:24px}.close{float:right;background:none;border:0;color:#aaa;cursor:pointer}.field{margin:13px 0}.field label{display:block;color:#bbb;font-size:11px;margin-bottom:6px}.row{display:flex;gap:9px;justify-content:flex-end;margin-top:18px}.profile{display:flex;gap:15px;align-items:center}.bigavatar{width:70px;height:70px;border-radius:50%;overflow:hidden;background:#333744;display:grid;place-items:center;font-size:25px;font-weight:900}.bigavatar img{width:100%;height:100%;object-fit:cover}footer{text-align:center;color:#71737d;border-top:1px solid var(--line);padding:30px;margin-top:80px}
 @media(max-width:800px){nav{display:none}.hero{grid-template-columns:1fr}.hero h1{font-size:48px}.grid,.members,.stats{grid-template-columns:1fr}.actions{flex-direction:column}}
+
+.lbtable{width:100%;border-collapse:collapse}
+.lbtable th,.lbtable td{padding:12px 10px;text-align:left;border-bottom:1px solid var(--line)}
+.lbtable th{color:var(--muted);font-size:11px;letter-spacing:.5px}
+.lbrow{display:flex;align-items:center;gap:10px}
+.lbavatar{width:34px;height:34px;border-radius:50%;overflow:hidden;background:#333744;display:grid;place-items:center;font-weight:900;flex:none}
+.lbavatar img{width:100%;height:100%;object-fit:cover}
+.ranknum{font-weight:900;color:var(--muted);width:24px}
+.win{color:var(--green);font-weight:900}.loss{color:#ff6570;font-weight:900}
+.tracker{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.formgrid .field{margin:0}.full{grid-column:1/-1}
+.gameList{display:grid;gap:10px}
+.gameRow{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:13px;display:flex;justify-content:space-between;gap:12px;align-items:center}
+.gameMain{min-width:0}.gameTop{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.gameScore{font-size:18px;font-weight:900}
+.gameMeta{color:var(--muted);font-size:12px;margin-top:5px}
+@media(max-width:800px){.tracker{grid-template-columns:1fr}.formgrid{grid-template-columns:1fr}.full{grid-column:auto}.lbtable{font-size:12px}.lbtable th:nth-child(5),.lbtable td:nth-child(5){display:none}}
 </style>
 </head>
 <body>
-<header><div class="logo">V<span>/</span>COMMUNITY</div><nav><a href="#events">Events</a><a href="#members">Members</a><a href="#chat">Chat</a><a href="#announcements">Announcements</a></nav><button class="ghost" onclick="session?logout():openM('auth')" id="accountBtn">LOGIN</button><button class="btn" onclick="discord()">DISCORD</button></header>
+<header><div class="logo">V<span>/</span>COMMUNITY</div><nav><a href="#events">Events</a><a href="#leaderboard">Leaderboard</a><a href="#tracker">Game Tracker</a><a href="#members">Members</a><a href="#chat">Chat</a><a href="#announcements">Announcements</a></nav><button class="ghost" onclick="session?logout():openM('auth')" id="accountBtn">LOGIN</button><button class="btn" onclick="discord()">DISCORD</button></header>
 <main>
 <section class="hero">
 <div><div class="kicker">VALORANT COMMUNITY</div><h1>PLAY. <span>COMPETE.</span><br>CONNECT.</h1><p>A VALORANT-only community for 10-mans, custom scrims and tournaments. Create a profile, join the next lobby and chat with the community.</p><div class="actions"><button class="btn" onclick="document.querySelector('#events').scrollIntoView()">VIEW EVENT</button><button class="ghost" onclick="openM('auth')">LOGIN / SIGN UP</button></div></div>
@@ -24,6 +41,44 @@ section{margin-top:70px}.head{display:flex;justify-content:space-between;align-i
 </section>
 
 <section id="events"><div class="head"><div><h2>Upcoming Events</h2><p>One event. Ten players. Get your spot.</p></div></div><div class="grid"><div class="card"><span class="tag">10-MAN</span><h3>Saturday 10-Mans</h3><div class="date">Saturday · 6:30 PM</div><p>5v5 VALORANT custom scrim. Join the player list and get ready.</p><div id="players" class="players"></div><button class="btn" onclick="joinEvent()">JOIN / LEAVE</button></div></div></section>
+
+
+<section id="leaderboard">
+<div class="head"><div><h2>Leaderboard</h2><p>Community performance from submitted game results.</p></div></div>
+<div class="card" style="overflow:auto">
+<table class="lbtable">
+<thead><tr><th>#</th><th>PLAYER</th><th>GAMES</th><th>W/L</th><th>WIN RATE</th><th>KDA</th></tr></thead>
+<tbody id="leaderboardBody"></tbody>
+</table>
+</div>
+</section>
+
+<section id="tracker">
+<div class="head"><div><h2>Game Tracker</h2><p>Log your VALORANT games and build your stats.</p></div></div>
+<div class="tracker">
+<div class="card">
+<h3 style="margin-top:0">Add a game</h3>
+<div class="formgrid">
+<div class="field"><label>OPPONENT</label><input id="gameOpponent" placeholder="Team / player"></div>
+<div class="field"><label>MAP</label><input id="gameMap" placeholder="Ascent"></div>
+<div class="field"><label>SCORE</label><input id="gameScore" placeholder="13-9"></div>
+<div class="field"><label>RESULT</label><select id="gameResult"><option>Win</option><option>Loss</option></select></div>
+<div class="field"><label>KILLS</label><input id="gameKills" type="number" min="0" max="100" placeholder="18"></div>
+<div class="field"><label>DEATHS</label><input id="gameDeaths" type="number" min="0" max="100" placeholder="12"></div>
+<div class="field"><label>ASSISTS</label><input id="gameAssists" type="number" min="0" max="100" placeholder="6"></div>
+<div class="field"><label>AGENT</label><input id="gameAgent" placeholder="Jett"></div>
+<div class="field full"><label>NOTE (OPTIONAL)</label><input id="gameNote" maxlength="120" placeholder="Any quick note about the match"></div>
+</div>
+<div class="row"><button class="btn" onclick="saveGame()">SAVE GAME</button></div>
+<div id="gameError" style="color:#ff6570;min-height:20px"></div>
+</div>
+
+<div class="card">
+<h3 style="margin-top:0">My recent games</h3>
+<div id="myGames" class="gameList"></div>
+</div>
+</div>
+</section>
 
 <section id="members"><div class="head"><div><h2>Members</h2><p>Open a profile to view details and roles.</p></div><button class="btn" onclick="openM('profile')">MY PROFILE</button></div><div class="stats"><div class="stat"><b id="memberCount">0</b><span>MEMBERS</span></div><div class="stat"><b id="joinedCount">0</b><span>EVENT SIGNUPS</span></div><div class="stat"><b>100%</b><span>VALORANT</span></div></div><div class="role">🛡️ ADMINS</div><div id="admins" class="members"></div><div class="role">👥 MEMBERS</div><div id="membersList" class="members"></div></section>
 
@@ -39,7 +94,7 @@ section{margin-top:70px}.head{display:flex;justify-content:space-between;align-i
 <p id="authHelp" style="color:#999">Use your email and password to enter V/Community.</p>
 <div class="field"><label>EMAIL</label><input id="authEmail" type="email" placeholder="you@example.com"></div>
 <div class="field"><label>PASSWORD</label><input id="authPassword" type="password" placeholder="••••••••"></div>
-<div id="authNameWrap" class="field" style="display:none"><label>GAMING NAME *</label><input id="authName" maxlength="24" autocomplete="nickname" placeholder="e.g. rAiN"><small style="display:block;color:#777;margin-top:6px">This is the name other V/Community members will see.</small></div>
+<div id="authNameWrap" class="field" style="display:none"><label>DISPLAY NAME</label><input id="authName" placeholder="Your community name"></div>
 <div id="authError" style="color:#ff6570;min-height:20px"></div>
 <div class="row"><button class="ghost" id="authSwitch" onclick="toggleAuthMode()">Create account</button><button class="btn" id="authSubmit" onclick="submitAuth()">LOGIN</button></div>
 </div></div>
@@ -50,7 +105,7 @@ section{margin-top:70px}.head{display:flex;justify-content:space-between;align-i
 const SUPABASE_URL='https://zmkpfszuvyqdfjlumliw.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_QZ2eJQdtCNbLoZPLedSi1w_tPQVKf2l';
 const DISCORD='https://discord.gg/P6skB3DecU';
-let sb=null,session=null,profile=null,profiles=[],players=[],messages=[],currentEvent=null,authMode='login';
+let sb=null,session=null,profile=null,profiles=[],players=[],messages=[],games=[],currentEvent=null,authMode='login';
 
 function configured(){return SUPABASE_PUBLISHABLE_KEY&&!SUPABASE_PUBLISHABLE_KEY.includes('PASTE_YOUR')}
 function discord(){window.open(DISCORD,'_blank','noopener')}
@@ -62,7 +117,6 @@ function notify(t){alert(t)}
 function toggleAuthMode(){
  authMode=authMode==='login'?'signup':'login';
  authTitle.textContent=authMode==='login'?'Login':'Create account';
- if(authMode==='signup')authName.value='';
  authSubmit.textContent=authMode==='login'?'LOGIN':'SIGN UP';
  authSwitch.textContent=authMode==='login'?'Create account':'Back to login';
  authNameWrap.style.display=authMode==='signup'?'block':'none';
@@ -74,11 +128,8 @@ async function submitAuth(){
  const email=authEmail.value.trim(),password=authPassword.value,error=authError; error.textContent='';
  if(!email||!password)return error.textContent='Enter your email and password.';
  if(authMode==='signup'){
-  const display=authName.value.trim(); if(!display)return error.textContent='Choose a gaming name.';
-  if(!/^[A-Za-z0-9 _.-]{2,24}$/.test(display))return error.textContent='Gaming name must be 2–24 characters and use letters, numbers, spaces, . _ or -.';
+  const display=authName.value.trim(); if(!display)return error.textContent='Enter a display name.';
   if(password.length<6)return error.textContent='Password must be at least 6 characters.';
-  const {data:existingName}=await sb.from('profiles').select('id').ilike('username',display).limit(1);
-  if(existingName?.length)return error.textContent='That gaming name is already taken. Choose another one.';
   const {data,error:e}=await sb.auth.signUp({email,password,data:{display_name:display}});
   if(e)return error.textContent=e.message;
   if(data.session){session=data.session;await ensureProfile(display);closeM('auth');await loadAll();}
@@ -89,23 +140,13 @@ async function submitAuth(){
   session=data.session;await ensureProfile();closeM('auth');await loadAll();
  }
 }
-async function logout(){if(sb)await sb.auth.signOut();session=null;profile=null;profiles=[];players=[];messages=[];render()}
+async function logout(){if(sb)await sb.auth.signOut();session=null;profile=null;profiles=[];players=[];messages=[];games=[];render()}
 async function ensureProfile(nameFromSignup=''){
  if(!session?.user)return;
  const id=session.user.id;
  const {data:existing}=await sb.from('profiles').select('*').eq('id',id).maybeSingle();
- const signupName=(nameFromSignup||session.user.user_metadata?.display_name||'').trim();
- if(existing){
-  // A database trigger may create the profile before email confirmation/login.
-  // If signup supplied a gaming name, always use it instead of an email-derived Player name.
-  if(signupName && existing.username!==signupName){
-   const {data:updated,error:updateError}=await sb.from('profiles').update({username:signupName}).eq('id',id).select().single();
-   if(updateError)notify('Your account is signed in, but your gaming name could not be saved: '+updateError.message);
-   else existing=updated;
-  }
-  profile=existing;return;
- }
- const fallback=signupName||('Player'+session.user.id.slice(0,6));
+ if(existing){profile=existing;return;}
+ const fallback=nameFromSignup||session.user.user_metadata?.display_name||session.user.email.split('@')[0];
  const {data,error}=await sb.from('profiles').insert({id,username:fallback,riot_id:'',rank:'Unranked',main_agent:'',avatar_url:'',is_admin:false}).select().single();
  if(error)notify('Your account exists, but your profile could not be created: '+error.message); else profile=data;
 }
@@ -157,6 +198,57 @@ function renderChat(){
  }).join(''):'<div style="color:#777;padding:15px">No messages yet.</div>';
  messagesEl.scrollTop=messagesEl.scrollHeight;
 }
+
+async function saveGame(){
+  if(!session?.user){openM('auth');return}
+  const error=document.getElementById('gameError');error.textContent='';
+  const opponent=gameOpponent.value.trim(),map=gameMap.value.trim(),score=gameScore.value.trim(),result=gameResult.value;
+  const kills=Number(gameKills.value||0),deaths=Number(gameDeaths.value||0),assists=Number(gameAssists.value||0),agent=gameAgent.value.trim(),note=gameNote.value.trim();
+  if(!opponent||!score)return error.textContent='Enter an opponent and score.';
+  if(kills<0||deaths<0||assists<0)return error.textContent='Stats cannot be negative.';
+  const {error:e}=await sb.from('game_results').insert({
+    user_id:session.user.id,opponent,map_name:map,score,result,kills,deaths,assists,agent,note
+  });
+  if(e)return error.textContent=e.message;
+  gameOpponent.value='';gameMap.value='';gameScore.value='';gameResult.value='Win';
+  gameKills.value='';gameDeaths.value='';gameAssists.value='';gameAgent.value='';gameNote.value='';
+  await loadAll();
+}
+async function deleteGame(id){
+  if(!session?.user)return;
+  const g=games.find(x=>x.id===id);
+  if(!g||g.user_id!==session.user.id)return;
+  const {error}=await sb.from('game_results').delete().eq('id',id);
+  if(error)return notify(error.message);
+  await loadAll();
+}
+function renderLeaderboard(){
+  const byUser={};
+  games.forEach(g=>{
+    const id=g.user_id;
+    if(!byUser[id])byUser[id]={id,user:g.profiles||{},games:0,wins:0,losses:0,kills:0,deaths:0,assists:0};
+    const s=byUser[id];s.games++;s.kills+=Number(g.kills||0);s.deaths+=Number(g.deaths||0);s.assists+=Number(g.assists||0);
+    if(g.result==='Win')s.wins++;else s.losses++;
+  });
+  const rows=Object.values(byUser).sort((a,b)=>{
+    const aw=a.wins/Math.max(a.games,1),bw=b.wins/Math.max(b.games,1);
+    const ak=(a.kills+a.assists)/Math.max(a.deaths,1),bk=(b.kills+b.assists)/Math.max(b.deaths,1);
+    return b.wins-a.wins || bw-aw || bk-ak || b.games-a.games;
+  });
+  leaderboardBody.innerHTML=rows.length?rows.map((s,i)=>{
+    const name=s.user?.username||'Member',avatar=s.user?.avatar_url||'',rate=Math.round(s.wins/Math.max(s.games,1)*100),kda=((s.kills+s.assists)/Math.max(s.deaths,1)).toFixed(2);
+    return `<tr><td><span class="ranknum">${i+1}</span></td><td><div class="lbrow"><div class="lbavatar">${avatar?`<img src="${esc(avatar)}">`:esc((name||'?')[0].toUpperCase())}</div><b>${esc(name)}</b></div></td><td>${s.games}</td><td><span class="win">${s.wins}W</span> / <span class="loss">${s.losses}L</span></td><td>${rate}%</td><td>${kda}</td></tr>`;
+  }).join(''):'<tr><td colspan="6" style="color:#777;padding:18px">No game results yet. Be the first to log a game!</td></tr>';
+}
+function renderMyGames(){
+  if(!session?.user){myGames.innerHTML='<div style="color:#777">Log in to record games and view your history.</div>';return}
+  const mine=games.filter(g=>g.user_id===session.user.id).slice(0,20);
+  myGames.innerHTML=mine.length?mine.map(g=>{
+    const when=new Date(g.played_at||g.created_at).toLocaleDateString();
+    return `<div class="gameRow"><div class="gameMain"><div class="gameTop"><span class="${g.result==='Win'?'win':'loss'}">${esc(g.result)}</span><b>${esc(g.score)}</b><span>${esc(g.opponent)}</span></div><div class="gameMeta">${esc(g.map_name||'Map not set')} · ${esc(g.agent||'Agent not set')} · ${g.kills}/${g.deaths}/${g.assists} K/D/A · ${when}${g.note?' · '+esc(g.note):''}</div></div><button class="del" onclick="deleteGame('${g.id}')">Delete</button></div>`;
+  }).join(''):'<div style="color:#777">No games recorded yet.</div>';
+}
+
 function render(){
  const accountBtn=document.getElementById('accountBtn');if(accountBtn){accountBtn.textContent=session?'LOGOUT':'LOGIN';accountBtn.onclick=session?logout:()=>openM('auth');}
  if(profile){pName.value=profile.username||'';pRiot.value=profile.riot_id||'';pRank.value=profile.rank||'Unranked';pAgent.value=profile.main_agent||'';pAvatar.value=profile.avatar_url||''}
@@ -169,7 +261,7 @@ function render(){
  const profileBtn=document.querySelector('#members .head .btn');if(profileBtn){profileBtn.textContent=session?'MY PROFILE':'LOGIN / SIGN UP';profileBtn.onclick=session?()=>openM('profile'):()=>openM('auth');}
 }
 function setupRealtime(){
- sb.channel('vc-live').on('postgres_changes',{event:'*',schema:'public',table:'profiles'},()=>loadAll()).on('postgres_changes',{event:'*',schema:'public',table:'event_players'},()=>loadAll()).on('postgres_changes',{event:'*',schema:'public',table:'messages'},()=>loadAll()).subscribe();
+ sb.channel('vc-live').on('postgres_changes',{event:'*',schema:'public',table:'profiles'},()=>loadAll()).on('postgres_changes',{event:'*',schema:'public',table:'event_players'},()=>loadAll()).on('postgres_changes',{event:'*',schema:'public',table:'messages'},()=>loadAll()).on('postgres_changes',{event:'*',schema:'public',table:'game_results'},()=>loadAll()).subscribe();
 }
 async function start(){
  if(!configured()){render();return}
