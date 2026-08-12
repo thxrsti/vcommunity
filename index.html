@@ -201,13 +201,21 @@ async function ensureProfile(nameFromSignup=''){
 }
 async function loadAll(){
  if(!sb)return;
- const {data:p}=await sb.from('profiles').select('*').order('created_at',{ascending:true});profiles=p||[];
- if(profile)profile=profiles.find(x=>x.id===profile.id)||profile;
- const {data:e}=await sb.from('events').select('*').eq('name','Saturday 10-Mans').order('event_date',{ascending:true}).limit(1);currentEvent=e?.[0]||null;
- if(currentEvent){const {data:ep}=await sb.from('event_players').select('user_id,profiles(username)').eq('event_id',currentEvent.id);players=(ep||[]).map(x=>({id:x.user_id,name:x.profiles?.username||'Member'}));}else players=[];
- const {data:m}=await sb.from('messages').select('id,user_id,body,created_at,profiles(username)').order('created_at',{ascending:true}).limit(100);messages=m||[];
+ const {data:p,error:pError}=await sb.from('profiles').select('*').order('created_at',{ascending:true});
+ if(pError){console.error('Profiles load error:',pError.message); if(profile?.id && !profiles.some(x=>x.id===profile.id))profiles=[profile];}
+ else {profiles=p||[]; if(profile)profile=profiles.find(x=>x.id===profile.id)||profile;}
+ const {data:e,error:eError}=await sb.from('events').select('*').eq('name','Saturday 10-Mans').order('event_date',{ascending:true}).limit(1);
+ if(eError)console.error('Events load error:',eError.message);
+ currentEvent=e?.[0]||null;
+ if(currentEvent){
+   const {data:ep,error:epError}=await sb.from('event_players').select('user_id,profiles(username)').eq('event_id',currentEvent.id);
+   if(epError)console.error('Event players load error:',epError.message);
+   players=(ep||[]).map(x=>({id:x.user_id,name:x.profiles?.username||'Member'}));
+ }else players=[];
+ const {data:m,error:mError}=await sb.from('messages').select('id,user_id,body,created_at,profiles(username)').order('created_at',{ascending:true}).limit(100);
+ if(mError){console.error('Messages load error:',mError.message);messages=[];}else messages=m||[];
  const {data:g,error:gameError}=await sb.from('game_results').select('*,profiles(username,avatar_url)').order('played_at',{ascending:false}).limit(500);
- if(gameError){games=[];console.error('Game tracker load error:',gameError.message);}else{games=g||[];}
+ if(gameError){games=[];console.error('Game tracker load error:',gameError.message);}else games=g||[];
  render();
 }
 function roleName(p){
@@ -248,6 +256,54 @@ async function sendChat(){
  const {error}=await sb.from('messages').insert({user_id:session.user.id,body:t});if(error)return notify(error.message);chatText.value='';
 }
 async function delMsg(id){if(!session?.user)return;const {error}=await sb.from('messages').delete().eq('id',id);if(error)return notify(error.message);await loadAll()}
+function renderChat(){
+ const el=document.getElementById('messages');
+ if(!el)return;
+ if(!messages.length){el.innerHTML='<div style="color:#777;padding:15px">No messages yet.</div>';return;}
+ el.innerHTML=messages.map(m=>{
+   const name=m.profiles?.username||'Member';
+   const avatar=(name[0]||'?').toUpperCase();
+   const mine=session?.user?.id===m.user_id;
+   const canDelete=mine||!!profile?.is_admin;
+   return `<div class="msg"><div style="display:flex;align-items:center;gap:8px"><span class="avatar" style="width:30px;height:30px;font-size:11px">${esc(avatar)}</span><b>${esc(name)}</b><small>${esc(new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}))}</small>${canDelete?`<button class="del" onclick="delMsg('${m.id}')">Delete</button>`:''}</div><div style="margin:7px 0 0 38px">${esc(m.body)}</div></div>`;
+ }).join('');
+ el.scrollTop=el.scrollHeight;
+}
+function renderLeaderboard(){
+ const body=document.getElementById('leaderboardBody');
+ if(!body)return;
+ const stats=new Map();
+ for(const g of games){
+   const id=g.user_id; if(!id)continue;
+   const name=g.profiles?.username||profiles.find(p=>p.id===id)?.username||'Member';
+   if(!stats.has(id))stats.set(id,{name,games:0,wins:0,kills:0,deaths:0,assists:0});
+   const s=stats.get(id); s.games++; if(String(g.result).toLowerCase()==='win')s.wins++; s.kills+=Number(g.kills)||0; s.deaths+=Number(g.deaths)||0; s.assists+=Number(g.assists)||0;
+ }
+ const rows=[...stats.values()].sort((a,b)=>b.wins-a.wins || b.games-a.games || ((b.kills+b.assists)-(b.deaths)));
+ body.innerHTML=rows.length?rows.map((s,i)=>{const wr=s.games?Math.round(s.wins/s.games*100):0;const kda=s.deaths?((s.kills+s.assists)/s.deaths).toFixed(2):((s.kills+s.assists)>0?'∞':'0.00');return `<tr><td>${i+1}</td><td><b>${esc(s.name)}</b></td><td>${s.games}</td><td>${s.wins}/${s.games-s.wins}</td><td>${wr}%</td><td>${kda}</td></tr>`}).join(''):'<tr><td colspan="6" style="color:#777;padding:18px">No game results yet.</td></tr>';
+}
+function renderMyGames(){
+ const el=document.getElementById('myGames');
+ if(!el)return;
+ if(!session?.user){el.innerHTML='<div style="color:#777">Log in to record games and view your history.</div>';return;}
+ const mine=games.filter(g=>g.user_id===session.user.id).slice(0,20);
+ el.innerHTML=mine.length?mine.map(g=>`<div class="gameRow"><div><b>${esc(g.result||'Game')}</b> · ${esc(g.score||'')} ${g.opponent?`vs ${esc(g.opponent)}`:''}<div style="color:#888;font-size:12px">${esc(g.map||'')} · ${esc(g.agent||'')} · ${Number(g.kills)||0}/${Number(g.deaths)||0}/${Number(g.assists)||0} · ${g.played_at?new Date(g.played_at).toLocaleDateString():''}</div>${g.note?`<div style="color:#aaa;font-size:12px">${esc(g.note)}</div>`:''}</div><button class="del" onclick="deleteGame('${g.id}')">Delete</button></div>`).join(''):'<div style="color:#777">No games recorded yet.</div>';
+}
+async function saveGame(){
+ if(!session?.user){openM('auth');return;}
+ const gameError=document.getElementById('gameError'); if(gameError)gameError.textContent='';
+ const payload={user_id:session.user.id,opponent:document.getElementById('gameOpponent').value.trim(),map:document.getElementById('gameMap').value.trim(),score:document.getElementById('gameScore').value.trim(),result:document.getElementById('gameResult').value,kills:Number(document.getElementById('gameKills').value)||0,deaths:Number(document.getElementById('gameDeaths').value)||0,assists:Number(document.getElementById('gameAssists').value)||0,agent:document.getElementById('gameAgent').value.trim(),note:document.getElementById('gameNote').value.trim(),played_at:new Date().toISOString()};
+ const {error}=await sb.from('game_results').insert(payload);
+ if(error){if(gameError)gameError.textContent=error.message;return;}
+ ['gameOpponent','gameMap','gameScore','gameKills','gameDeaths','gameAssists','gameAgent','gameNote'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+ await loadAll();
+}
+async function deleteGame(id){
+ if(!session?.user)return;
+ const {error}=await sb.from('game_results').delete().eq('id',id).eq('user_id',session.user.id);
+ if(error)return notify('Could not delete game: '+error.message);
+ await loadAll();
+}
 function card(p){return `<div class="member" onclick="view('${p.id}')"><div class="avatar">${p.avatar_url?`<img src="${esc(p.avatar_url)}">`:esc((p.username||'?')[0].toUpperCase())}</div><div><b>${esc(p.username||'Member')}</b><small>${esc(p.rank||'Unranked')} · ${esc(p.main_agent||'Agent not set')}</small>${roleBadge(p)}</div></div>`}
 function view(id){
   const p=profiles.find(x=>x.id===id);if(!p)return;
