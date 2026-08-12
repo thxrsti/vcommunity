@@ -217,11 +217,21 @@ async function saveGame(){
   await loadAll();
 }
 async function deleteGame(id){
-  if(!session?.user)return;
-  const g=games.find(x=>x.id===id);
-  if(!g||g.user_id!==session.user.id)return;
-  const {error}=await sb.from('game_results').delete().eq('id',id);
-  if(error)return notify(error.message);
+  if(!session?.user){openM('auth');return}
+  const g=games.find(x=>String(x.id)===String(id));
+  if(!g){return notify('Game not found. Please refresh the page and try again.')}
+  if(g.user_id!==session.user.id){return notify('You can only delete your own games.')}
+  if(!confirm('Delete this game result?'))return;
+
+  const {data,error}=await sb.from('game_results')
+    .delete()
+    .eq('id',id)
+    .eq('user_id',session.user.id)
+    .select('id');
+
+  if(error)return notify('Could not delete the game: '+error.message);
+  if(!data||data.length===0)return notify('The game could not be deleted. Check that the game_results DELETE policy is enabled in Supabase.');
+
   await loadAll();
 }
 function renderLeaderboard(){
