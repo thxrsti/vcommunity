@@ -168,10 +168,30 @@ async function ensureProfile(nameFromSignup=''){
  if(!session?.user)return;
  const id=session.user.id;
  const {data:existing}=await sb.from('profiles').select('*').eq('id',id).maybeSingle();
- if(existing){profile=existing;return;}
- const fallback=nameFromSignup||session.user.user_metadata?.display_name||session.user.email.split('@')[0];
- const {data,error}=await sb.from('profiles').insert({id,username:fallback,riot_id:'',rank:'Unranked',main_agent:'',avatar_url:'',is_admin:false,role:'Member'}).select().single();
- if(error)notify('Your account exists, but your profile could not be created: '+error.message); else profile=data;
+
+ // During signup, always use the display name the person entered.
+ // This also fixes profiles that were automatically created by a database
+ // trigger with the email address/local-part as the username.
+ if(existing){
+   if(nameFromSignup && nameFromSignup.trim() && existing.username !== nameFromSignup.trim()){
+     const {data:updated,error:updateError}=await sb.from('profiles')
+       .update({username:nameFromSignup.trim()})
+       .eq('id',id)
+       .select().single();
+     if(updateError){notify('Account created, but the display name could not be saved: '+updateError.message);profile=existing;}
+     else profile=updated;
+   }else{
+     profile=existing;
+   }
+   return;
+ }
+
+ const fallback=nameFromSignup?.trim()||session.user.user_metadata?.display_name||session.user.email.split('@')[0];
+ const {data,error}=await sb.from('profiles')
+   .insert({id,username:fallback,riot_id:'',rank:'Unranked',main_agent:'',avatar_url:'',is_admin:false,role:'Member'})
+   .select().single();
+ if(error)notify('Your account exists, but your profile could not be created: '+error.message);
+ else profile=data;
 }
 async function loadAll(){
  if(!sb)return;
