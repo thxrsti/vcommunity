@@ -353,6 +353,7 @@ async function start(){
  if(session)await ensureProfile();await loadAll();setupRealtime();
 }
 const messagesEl=document.getElementById('messages'),playersEl=document.getElementById('players');
+const admins=document.getElementById('admins'),membersList=document.getElementById('membersList'),memberCount=document.getElementById('memberCount'),joinedCount=document.getElementById('joinedCount'),count=document.getElementById('count'),spots=document.getElementById('spots'),bar=document.getElementById('bar');
 const accountButton=document.getElementById('accountBtn');
 if(accountButton)accountButton.addEventListener('click',()=>{if(session)logout();else openM('auth')});
 start();
