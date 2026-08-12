@@ -157,6 +157,8 @@ async function loadAll(){
  const {data:e}=await sb.from('events').select('*').eq('name','Saturday 10-Mans').order('event_date',{ascending:true}).limit(1);currentEvent=e?.[0]||null;
  if(currentEvent){const {data:ep}=await sb.from('event_players').select('user_id,profiles(username)').eq('event_id',currentEvent.id);players=(ep||[]).map(x=>({id:x.user_id,name:x.profiles?.username||'Member'}));}else players=[];
  const {data:m}=await sb.from('messages').select('id,user_id,body,created_at,profiles(username)').order('created_at',{ascending:true}).limit(100);messages=m||[];
+ const {data:g,error:gameError}=await sb.from('game_results').select('*,profiles(username,avatar_url)').order('played_at',{ascending:false}).limit(500);
+ if(gameError){games=[];console.error('Game tracker load error:',gameError.message);}else{games=g||[];}
  render();
 }
 async function saveProfile(){
@@ -202,16 +204,16 @@ function renderChat(){
 async function saveGame(){
   if(!session?.user){openM('auth');return}
   const error=document.getElementById('gameError');error.textContent='';
-  const opponent=gameOpponent.value.trim(),map=gameMap.value.trim(),score=gameScore.value.trim(),result=gameResult.value;
-  const kills=Number(gameKills.value||0),deaths=Number(gameDeaths.value||0),assists=Number(gameAssists.value||0),agent=gameAgent.value.trim(),note=gameNote.value.trim();
+  const opponent=document.getElementById('gameOpponent').value.trim(),map=document.getElementById('gameMap').value.trim(),score=document.getElementById('gameScore').value.trim(),result=document.getElementById('gameResult').value;
+  const kills=Number(document.getElementById('gameKills').value||0),deaths=Number(document.getElementById('gameDeaths').value||0),assists=Number(document.getElementById('gameAssists').value||0),agent=document.getElementById('gameAgent').value.trim(),note=document.getElementById('gameNote').value.trim();
   if(!opponent||!score)return error.textContent='Enter an opponent and score.';
   if(kills<0||deaths<0||assists<0)return error.textContent='Stats cannot be negative.';
   const {error:e}=await sb.from('game_results').insert({
     user_id:session.user.id,opponent,map_name:map,score,result,kills,deaths,assists,agent,note
   });
   if(e)return error.textContent=e.message;
-  gameOpponent.value='';gameMap.value='';gameScore.value='';gameResult.value='Win';
-  gameKills.value='';gameDeaths.value='';gameAssists.value='';gameAgent.value='';gameNote.value='';
+  document.getElementById('gameOpponent').value='';document.getElementById('gameMap').value='';document.getElementById('gameScore').value='';document.getElementById('gameResult').value='Win';
+  document.getElementById('gameKills').value='';document.getElementById('gameDeaths').value='';document.getElementById('gameAssists').value='';document.getElementById('gameAgent').value='';document.getElementById('gameNote').value='';
   await loadAll();
 }
 async function deleteGame(id){
@@ -258,6 +260,8 @@ function render(){
  playersEl.innerHTML=players.map(x=>`<span class="pill">${esc(x.name)}</span>`).join('')||'<span style="color:#777">No players yet</span>';
  const max=currentEvent?.max_players||10;count.textContent=`${players.length} / ${max} players`;spots.textContent=`${Math.max(0,max-players.length)} spots left`;bar.style.width=Math.min(100,players.length/max*100)+'%';
  renderChat();
+ renderLeaderboard();
+ renderMyGames();
  const profileBtn=document.querySelector('#members .head .btn');if(profileBtn){profileBtn.textContent=session?'MY PROFILE':'LOGIN / SIGN UP';profileBtn.onclick=session?()=>openM('profile'):()=>openM('auth');}
 }
 function setupRealtime(){
